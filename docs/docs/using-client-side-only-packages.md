@@ -104,6 +104,28 @@ const LoadableBuyButton = Loadable(() => import("./ShopifyBuyButton"))
 
 export default LoadableBuyButton
 ```
+## Workaround 5: Customize webpack configuration using Gatsby Node API - onCreateWebpackConfig
+In some scenarios, you may encounter issues with certain npm packages during Gatsby's build process, especially those not compatible with server-side rendering. To resolve this, you can customize the webpack configuration using Gatsby's Node API.
+
+Create or modify the gatsby-node.js file at the root of your project and add the following lines:
+
+```js
+exports.onCreateWebpackConfig = ({ stage, loaders, actions }) => {
+  if (stage === "build-html" || stage === "develop-html") {
+    actions.setWebpackConfig({
+      module: {
+        rules: [
+          {
+            test: /pdfjs-dist/, // Replace 'pdfjs-dist' with the module causing issues
+            use: loaders.null(),
+          },
+        ],
+      },
+    });
+  }
+};
+```
+This code snippet ensures that during the HTML building stages (build-html and develop-html), the specified module (e.g., pdfjs-dist) will use a null loader, effectively bypassing it. After adding this configuration, restart your Gatsby application using gatsby develop.
 
 > **Note:** There are other potential workarounds than those listed here. If you've had success with another method, check out the [contributing docs](/contributing/docs-contributions/) and add yours!
 
